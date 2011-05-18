@@ -1,0 +1,168 @@
+
+=======
+Bugland
+=======
+
+Bugland is a small package to generate images or "scenes" of a certain
+kind, intended to test machine learning algorithms.
+
+Bugland generates binary white-on-black images of "bugs" laid down on
+a background. By "bug" here we mean a unique pattern of white pixels
+that is connected together by the edges or the corners of the pixels
+(see :ref:`a list <buglist>`). Depending on the problem, a scene may
+contain one or more bugs of various kinds in various orientations that
+do not touch each other, and each scene is given a class (for example,
+the identifier of the bug that's different from the others).
+
+To install Bugland, make sure you have the ``numpy`` package installed
+and then update the ``PYTHONPATH`` environment variable so that the
+package's root, ``Bugland/bugland``, is available for import.
+
+Bugland currently only defines a limited number of problems, but it is
+easy to define more (see the documentation of the :class:`BugPlacer
+<bugland.dataset.BugPlacer>` class and the generators defined in the
+:mod:`bugland.gen` module for documentation and inspiration). Follows
+a list of standard problems defined by Bugland:
+
+
+Tetromino
+=========
+
+The Tetromino dataset is a sequence of scenes where each scene
+contains exactly three shapes. Two shapes are identical and the third
+is different from the others. The target of the task is to identify
+the third shape. There are seven possible shapes, and thus seven
+possible classes for the task:
+
+0. :ref:`TETRISI <bug_tetrisi>`
+
+1. :ref:`TETRISO <bug_tetriso>`
+
+2. :ref:`TETRIST <bug_tetrist>`
+
+3. :ref:`TETRISL <bug_tetrisl>`
+
+4. :ref:`TETRISJ <bug_tetrisj>`
+
+5. :ref:`TETRISS <bug_tetriss>`
+
+6. :ref:`TETRISZ <bug_tetrisz>`
+
+These shapes correspond to the seven distinct tetrominos_ under sole
+rotation invariance (we do not consider invariance under
+reflection). The same set of shapes is used in the bestselling video
+game Tetris_.
+
+We define two standard definitions for tetromino: 10x10 and 16x16, but
+you are free to instantiate the dataset in other definitions,
+including non-square layouts.
+
+Images
+------
+
+<IMAGES GO HERE>
+
+Usage
+-----
+
+.. code-block:: python
+
+   from bugland import tetromino10x10
+   for image, target in tetromino10x10:
+      # note: this is an infinite loop
+      print image.reshape((10, 10)) # the image you get is flattened
+      print target
+
+Definition
+----------
+
+The following code produces the Tetromino dataset and may help you
+make variants.
+
+.. code-block:: python
+
+  from bugland import TwoGroups, BugPlacer
+  tetromino_gen = lambda w, h: TwoGroups("tetrisi/tetriso/tetrist/tetrisl/tetrisj/tetriss/tetrisz",
+                                         1010, w, h,
+                                         n1 = 1, n2 = 2, rot = True, task = 1)
+  tetromino = lambda w, h: BugPlacer(tetromino_gen(w, h), True)
+  tetromino10x10 = tetromino(10, 10)
+  tetromino16x16 = tetromino(16, 16)
+
+
+
+Pentomino
+=========
+
+The Pentomino dataset is a sequence of scenes where each scene
+contains exactly three shapes. Two shapes are identical and the third
+is different from the others. The target of the task is to identify
+the third shape. There are ten possible shapes, and thus ten possible
+classes for the task:
+
+0. :ref:`PENTL <bug_pentl>`
+
+1. :ref:`PENTN <bug_pentn>`
+
+2. :ref:`PENTP <bug_pentp>`
+
+3. :ref:`PENTF <bug_pentf>`
+
+4. :ref:`PENTY <bug_penty>`
+
+5. :ref:`PENTJ <bug_pentj>`
+
+6. :ref:`PENTN2 <bug_pentn2>`
+
+7. :ref:`PENTQ <bug_pentq>`
+
+8. :ref:`PENTF2 <bug_pentf2>`
+
+9. :ref:`PENTY2 <bug_penty2>`
+
+These shapes correspond to ten distinct pentominos_ under sole
+rotation invariance (we do not consider invariance under
+reflection). This is only a subset of all possible Pentominos, and
+note that classes 5 to 9 are the reflections of classes 0 to 4.
+
+We define two standard definitions for pentomino: 10x10 and 16x16, but
+you are free to instantiate the dataset in other definitions,
+including non-square layouts.
+
+Images
+------
+
+<IMAGES GO HERE>
+
+Usage
+-----
+
+.. code-block:: python
+
+   from bugland import pentomino10x10
+   for image, target in pentomino10x10:
+      # note: this is an infinite loop
+      print image.reshape((10, 10)) # the image you get is flattened
+      print target
+
+Definition
+----------
+
+The following code produces the Pentomino dataset and may help you
+make variants.
+
+.. code-block:: python
+
+  from bugland import TwoGroups, BugPlacer
+  pentomino_gen = lambda w, h: TwoGroups("pentl/pentn/pentp/pentf/penty/pentj/pentn2/pentq/pentf2/penty2",
+                                         2020, w, h,
+                                         n1 = 1, n2 = 2, rot = True, task = 1)
+  pentomino = lambda w, h: BugPlacer(pentomino_gen(w, h), True)
+  pentomino10x10 = pentomino(10, 10)
+  pentomino16x16 = pentomino(16, 16)
+
+
+
+.. _pentominos: http://en.wikipedia.org/wiki/Pentomino
+.. _tetrominos: http://en.wikipedia.org/wiki/Tetromino
+.. _Tetris: http://en.wikipedia.org/wiki/Tetris

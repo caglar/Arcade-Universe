@@ -1,0 +1,12 @@
+
+=================
+The Bugland class
+=================
+
+The ``bugland.dataset`` module exports the ``Bugland`` class, which is
+a dataset wrapper that can produce examples one by one, or batches of
+examples.
+
+.. automodule:: bugland.dataset
+   :members:
+

@@ -1,0 +1,16 @@
+
+.. _contents:
+
+========
+Contents
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   LICENSE
+   index
+   dataset
+   gen
+   bug
+   bugs

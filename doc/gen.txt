@@ -1,0 +1,18 @@
+
+================
+Scene generators
+================
+
+The ``bugland.gen`` module contains several scene generators for use
+as the ``gen`` parameter of the :class:`Bugland` class.
+
+Note that there is no formal class to derive from to make a scene
+generator. What Bugland expects is mentioned in its documentation:
+some object or function with ``nout`` and ``nclasses`` fields and that
+can be called with (xres, yres) arguments to produce an iterator
+yielding a scene description (a list of bugs with their positions) and
+a target.
+
+.. automodule:: bugland.gen
+   :members:
+

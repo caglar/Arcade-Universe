@@ -1,0 +1,17 @@
+
+README
+======
+
+This is a simple library that can be used to generate images. The
+images will contain a certain number of white "bugs", which are pixel
+patterns placed randomly on a black background.
+
+Type "make html" in the doc/ directory, which will create an html/
+directory in the main directory of the package. You can point your
+browser to the index.html page, or you can look at doc/index.txt
+directly.
+
+The package exports some premade datasets, like tetromino10x10 or
+pentomino10x10. Both place three shapes (either tetrominos or
+pentominos) in the image, two of them being the same and the third
+being different. The task is to identify the image that's different.
