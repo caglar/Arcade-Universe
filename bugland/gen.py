@@ -4,6 +4,7 @@ from bugs import bugs_db
 
 
 class Identify(object):
+
     """
     Scene generator.
 
@@ -35,7 +36,6 @@ class Identify(object):
     ``w`` and ``h`` are the width and the height of the scene,
     respectively.
     """
-
     def __init__(self, bugnames, seed, w, h):
 
         self.bugnames = map(str.upper, bugnames.split('/'))
@@ -92,7 +92,7 @@ class TwoGroups(object):
     by "/", and the bugs described by these names must be found in
     ``bugland.bugs_db``. ``n1`` must be different from ``n2``. If
     ``rot`` is True, the bugs may be randomly rotated.
-
+    If ``scale`` is True, the bugs can be randomly scaled.
     The target depends on the value of the task parameter:
 
     ``task = 1`` -> The target is a vector containing one integer
@@ -118,7 +118,7 @@ class TwoGroups(object):
     respectively.
     """
 
-    def __init__(self, bugnames, seed, w, h, n1 = 1, n2 = 2, rot = False, task = 1):
+    def __init__(self, bugnames, seed, w, h, n1 = 1, n2 = 2, rot = False, scale = False, task = 1):
         if n1 == n2:
             raise ValueError('n1 must be different from n2', n1, n2)
 
@@ -132,6 +132,7 @@ class TwoGroups(object):
         self.n1 = n1
         self.n2 = n2
         self.rot = rot
+        self.scale = scale
         self.task = task
 
         self.out_format = 'array'
@@ -165,7 +166,9 @@ class TwoGroups(object):
             if self.rot:
                 bugs1 = [bug.rotate(ri(0, 3) * 90) for bug in bugs1]
                 bugs2 = [bug.rotate(ri(0, 3) * 90) for bug in bugs2]
-
+            if self.scale:
+                bugs1 = [bug.scale(ri(1, 2)) for bug in bugs1]
+                bugs2 = [bug.scale(ri(1, 2)) for bug in bugs2]
             descr = []
             for bug in bugs1 + bugs2:
                 descr.append(((ri(0, self.w - bug.w), ri(0, self.h - bug.h)), bug))
@@ -176,5 +179,4 @@ class TwoGroups(object):
                 yield descr, numpy.array([index2], dtype = self.out_dtype)
             else:
                 yield descr, numpy.array([index1, index2], dtype = self.out_dtype)
-
 

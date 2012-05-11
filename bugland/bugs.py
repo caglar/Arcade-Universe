@@ -638,9 +638,9 @@ for name, bug in sorted(bugs_db.iteritems()):
 
 
 
-# bugs = get_bugs(bugdesc)
+#bugs = get_bugs(bugdesc)
 
-# b = bugs['TETRISL']
+#b = bugs['TETRISL']
 # print b
 # print b.rotate(90)
 # print b.rotate(180)
@@ -649,9 +649,3 @@ for name, bug in sorted(bugs_db.iteritems()):
 # print b.scale(3, 1)
 # print b.hflip()
 # print b.vflip()
-
-
-
-
-
-
