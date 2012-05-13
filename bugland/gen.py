@@ -167,8 +167,8 @@ class TwoGroups(object):
                 bugs1 = [bug.rotate(ri(0, 3) * 90) for bug in bugs1]
                 bugs2 = [bug.rotate(ri(0, 3) * 90) for bug in bugs2]
             if self.scale:
-                bugs1 = [bug.scale(ri(1, 2)) for bug in bugs1]
-                bugs2 = [bug.scale(ri(1, 2)) for bug in bugs2]
+                bugs1 = [bug.scale(ri(1, 3)) for bug in bugs1]
+                bugs2 = [bug.scale(ri(1, 3)) for bug in bugs2]
             descr = []
             for bug in bugs1 + bugs2:
                 descr.append(((ri(0, self.w - bug.w), ri(0, self.h - bug.h)), bug))

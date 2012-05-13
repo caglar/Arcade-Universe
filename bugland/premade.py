@@ -38,8 +38,8 @@ if __name__=="__main__":
     pentomino16x16 = pentomino(16, 16)
     pentomino32x32 = pentomino(32, 32)
 
-    pentomino_dir = "/data/lisa/data/pentomino/"
-    tetromino_dir = "/data/lisa/data/tetromino/"
+    pentomino_dir = "/home/caglar/Datasets/tetropentomino/"
+    tetromino_dir = "/home/caglar/Datasets/tetropentomino/"
 
     pentomino16x16_raw = pentomino_dir + "pentomino16x16_raw.npy"
     pentomino32x32_raw = pentomino_dir + "pentomino32x32_raw.npy"
