@@ -50,7 +50,16 @@ class PerlinNoiseGenerator(object):
 			val += self.smoothnoise(x/size, y/size, noise) * size
 			size /= 2.0
 		
-		return (128 * val/init_size)
+		return int(128 * val/init_size)
+	
+	def get_background_noise(self):
+		data = np.zeros((self.w, self.h))
+		noise = self.generate_noise()
+		for x in xrange(self.w):
+			for y in xrange(self.h):
+				px = self.turbulence(x, y, noise)
+				data[x][y] = px
+		return data
 
 	def gen_img(self):
 		img = Image.new("RGB", (self.w, self.h), "#FFFFFF")
@@ -58,7 +67,7 @@ class PerlinNoiseGenerator(object):
 		noise = self.generate_noise()
 		for x in xrange(self.w):
 			for y in xrange(self.h):
-				r = g = b = int(self.turbulence(x, y, noise))
+				r = g = b = self.turbulence(x, y, noise)
 				draw.point((x, y) , fill=(r, g, b))
 		img.save("out.png", "PNG")
 

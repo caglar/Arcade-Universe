@@ -24,7 +24,7 @@ if __name__=="__main__":
                                        1010, w, h,
                                        n1 = 1, n2 = 2, rot = True, scale=True, task = 1)
 
-    tetromino = lambda w, h: BugPlacer(tetromino_gen(w, h), True)
+    tetromino = lambda w, h: BugPlacer(tetromino_gen(w, h), collision_check=True)
     tetromino10x10 = tetromino(10, 10)
     tetromino16x16 = tetromino(16, 16)
 
@@ -33,9 +33,9 @@ if __name__=="__main__":
                                        2020, w, h,
                                        n1 = 1, n2 = 2, rot = True, scale=True, task = 1)
 
-    pentomino = lambda w, h: BugPlacer(pentomino_gen(w, h), True)
+    pentomino = lambda w, h: BugPlacer(pentomino_gen(w, h), collision_check=True, enable_perlin=True)
     pentomino10x10 = pentomino(10, 10)
-    pentomino16x16 = pentomino(16, 16)
+#    pentomino16x16 = pentomino(16, 16)
     pentomino32x32 = pentomino(32, 32)
 
     pentomino_dir = "/home/caglar/Datasets/tetropentomino/"
@@ -46,10 +46,10 @@ if __name__=="__main__":
     tetromino16x16_raw = tetromino_dir + "tetromino16x16_raw.npy"
 
     print "Started saving pentomino16x16"
-    save_to_file(pentomino16x16_raw, 1000, pentomino16x16)
+ #   save_to_file(pentomino16x16_raw, 100, pentomino16x16)
 
     print "Started saving tetromino16x16"
-    save_to_file(tetromino16x16_raw, 1000, tetromino16x16)
+    save_to_file(tetromino16x16_raw, 100, tetromino16x16)
 
     print "Started saving pentomino32x32"
-    save_to_file(pentomino32x32_raw, 1000, pentomino32x32, e=32)
+    save_to_file(pentomino32x32_raw, 100, pentomino32x32, e=32)

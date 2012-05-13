@@ -5,7 +5,7 @@ import numpy
 
 def get_bugs(s):
     d = {}
-    mapping = {'.': 0,
+    mapping = {'.': 255,
                'x': 1}
     for block in s.split('\n\n'):
         block = block.strip()
@@ -603,7 +603,7 @@ xx.
 
 PENTS
 .xx
-,x.
+.x.
 xx.
 
 """
@@ -637,6 +637,8 @@ for name, bug in sorted(bugs_db.iteritems()):
 # xxxxx
 
 
+import pprint as pp
+pp.pprint(bugs_db)
 
 #bugs = get_bugs(bugdesc)
 
