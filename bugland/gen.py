@@ -4,7 +4,6 @@ from bugs import bugs_db
 
 
 class Identify(object):
-
     """
     Scene generator.
 
@@ -117,7 +116,6 @@ class TwoGroups(object):
     ``w`` and ``h`` are the width and the height of the scene,
     respectively.
     """
-
     def __init__(self, bugnames, seed, w, h, n1 = 1, n2 = 2, rot = False, scale = False, task = 1):
         if n1 == n2:
             raise ValueError('n1 must be different from n2', n1, n2)
@@ -179,4 +177,3 @@ class TwoGroups(object):
                 yield descr, numpy.array([index2], dtype = self.out_dtype)
             else:
                 yield descr, numpy.array([index1, index2], dtype = self.out_dtype)
-

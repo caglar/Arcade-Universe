@@ -118,7 +118,7 @@ class BugPlacer(object):
 			if not self.collision_check:
 				description, target = gen.next()
 				for (x, y), bug in description:
-					data[y:y+bug.h, x:x+bug.w] = bug.patch
+					data[y:y + bug.h, x:x + bug.w] = bug.patch
 				targets[:] = target
 				self.n_successes += 1
 
@@ -132,27 +132,27 @@ class BugPlacer(object):
 					collider.fill(0)
 
 					for (x, y), bug in description:
-						a, b = y-bug.marginh, y+bug.h+bug.marginh
-						c, d = x-bug.marginw, x+bug.w+bug.marginw
+						a, b = y - bug.marginh, y + bug.h + bug.marginh
+						c, d = x - bug.marginw, x + bug.w + bug.marginw
 
 						if a < 0 or b >= self.h or c < 0 or d >= self.w:
 
-							ba, bb = (a < 0)*-a, bug.mh - (b >= self.h)*(b-self.h+1)
-							bc, bd = (c < 0)*-c, bug.mw - (d >= self.w)*(d-self.w+1)
+							ba, bb = (a < 0)*-a, bug.mh - (b >= self.h) * (b - self.h + 1)
+							bc, bd = (c < 0)*-c, bug.mw - (d >= self.w) * (d - self.w + 1)
 
-							a, b = max(0, a), min(b, self.h-1)
-							c, d = max(0, c), min(d, self.w-1)
+							a, b = max(0, a), min(b, self.h - 1)
+							c, d = max(0, c), min(d, self.w - 1)
 
 							collider[a:b, c:d] += bug.mask[ba:bb, bc:bd]
 						else:
 							collider[a:b, c:d] += bug.mask
 
-					if numpy.any(collider>255) or numpy.any(collider==2) or numpy.any(collider==3):
+					if numpy.any(collider > 255) or numpy.any(collider == 2) or numpy.any(collider == 3):
 						self.n_rejections += 1
 						continue
 					else:
 						for (x, y), bug in description:
-							data[y:y+bug.h, x:x+bug.w] = bug.patch
+							data[y: y + bug.h, x: x + bug.w] = bug.patch
 						targets[:] = target
 						self.n_successes += 1
 						break

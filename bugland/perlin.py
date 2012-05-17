@@ -5,6 +5,14 @@ import numpy as np
 
 #This is a perlin noise generating script
 class PerlinNoiseGenerator(object):
+
+        """
+        The constructor for the PerlinNoiseGenerator,
+        w is the width of the Image
+        h is the height of the Image
+        size is the size for the noise scaling.
+        rnd : seed for the random number generator.
+        """
 	def __init__(self, w, h, size=64, rnd=12312):
 		self.w = w
 		self.h = h
@@ -19,7 +27,10 @@ class PerlinNoiseGenerator(object):
 			for y in xrange(self.h):
 				noise[x][y] = (self.rng.random_integers(0, 32768) / 32768)
 		return noise
-
+        
+        """
+        Smooth the noise at the pixel x and y, by using bilinear interpolation.
+        """
 	def smoothnoise(self, x, y, noise):
 		x_i = int(x)
 		y_i = int(y)
@@ -41,6 +52,9 @@ class PerlinNoiseGenerator(object):
 		val += (1 - fract_x) * (1 - fract_y) * noise[x2][y2]
 		return val
 
+        """
+        Add noise to the images by smoothing it.
+        """
 	def turbulence(self, x, y, noise, size=0):
 		val = 0.0
 		if size == 0:
