@@ -1,7 +1,9 @@
+<<<<<<< HEAD
 *.pyc
 *~
 \#*\#
 html
+=======
 *.py[co]
 
 # Packages
@@ -29,3 +31,4 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+>>>>>>> b6937a85a20923eee3e6cda5406a4eaa9ccb4736
