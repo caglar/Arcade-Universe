@@ -6,17 +6,18 @@ def get_sprites(s):
     d = {}
     mapping = {'.': 0,
                'x': 1}
-    for block, name in s.items():
+    for name, block in s.items():
+        print "block" + block
         name = name.strip()
         block = block.strip()
         if not block:
             continue
         lines = block.split('\n')
-        name = lines[0].strip()
         desc = []
         for line in lines[1:]:
             desc.append(map(mapping.get, line))
-        d[name] = Sprite(name, desc)
+        print name
+        d[name] = Sprite(name, patch=desc)
     return d
 
 spritedesc = { 

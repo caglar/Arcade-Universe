@@ -33,11 +33,13 @@ def get_pixel_intensities(width, height, rgb_func):
         fy = float(y)
         for x in xrange(width):
             fx = float(x)
-            data = np.concatenate((data, [min(255, max(0, int(v * 255))) for v in rgb_func(fx / fw, fy / fh)]))
+            data = np.concatenate((data,
+                [min(255, max(0, int(v * 255))) for v in rgb_func(fx / fw, fy / fh)]))
     return data
 
 def linear_gradient(start_value, stop_value, start_offset=0.0, stop_offset=1.0):
-    return lambda offset: (start_value + ((offset - start_offset) / (stop_offset - start_offset) * (stop_value - start_value))) / 255.0
+    return lambda offset: (start_value + ((offset - start_offset) 
+        / (stop_offset - start_offset) * (stop_value - start_value))) / 255.0
 
 def LINEAR_Y(x, y):
     return y

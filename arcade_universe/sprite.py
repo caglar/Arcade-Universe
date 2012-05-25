@@ -1,11 +1,9 @@
-
 import numpy
 
 class Sprite(object):
 
     """
     A Sprite is a sort of arcade game sprite saved in the bugs_db database.
-
     Creates a Sprite with the specified name and whose pixel
     representation is given by ``patch`` (a 2D array where 0 is the
     background and 1 is a pixel of the bug). The ``mask`` of the Sprite
@@ -13,25 +11,38 @@ class Sprite(object):
     if their masks overlap). The mask defaults to the same thing as
     the patch if it is not given.
     """
-    def __init__(self, name, patch, textured_patch=None, object_texture=False, mask = None, center_loc=(0, 0)):
+
+    def __init__(self, name, patch, texture=None, mask=None, center_loc=(0, 0)):
         self.name = name
         self.patch = numpy.array(patch)
-        self.object_texture = object_texture
-
-        if textured_patch is None:
+        self.textured_patch = patch
+        if texture is None:
             self.has_textured_patch = False
+            self.texture = None
         else:
             self.has_textured_patch = True
-            self.textured_patch = textured_patch
-
+            self.texture = texture
+            self.textured_patch = numpy.zeros(patch.shape)
+            self.set_texture()
         if mask is None:
             self.mask = self.patch
         else:
             self.mask = numpy.array(mask)
+        self.center_loc = center_loc
         self.center_of_mass = self.get_center_of_mass()
 
+    def set_texture(self, texture=None):
+        if texture is None:
+            texture = self.texture 
+        else:
+            self.texture = texture
+        for i in xrange(self.patch.shape[0]):
+            for j in xrange(self.patch.shape[1]):
+                if self.patch[i][j] == 1:
+                    self.textured_patch[i][j] = texture[i][j]
+
     def get_center_of_mass(self):
-        pixel_coords = numpy.array([])
+        pixel_coords = []
         for i in xrange(self.patch.shape[0]):
             for j in xrange(self.patch.shape[1]):
                 if self.patch[i][j] == 1:
@@ -51,8 +62,11 @@ class Sprite(object):
             return self
         if angle == 90:
             return Sprite(self.name,
-                       self.patch.T,
-                       self.mask.T).hflip()
+                       patch=self.patch.T,
+                       texture=self.texture,
+                       mask=self.mask.T,
+                       center_loc=self.center_loc).hflip()
+
         if angle >= 180:
             return self.hflip().vflip().rotate(angle-180)
 
@@ -63,7 +77,9 @@ class Sprite(object):
         """
         return Sprite(self.name,
                    self.patch[:, ::-1],
-                   self.mask[:, ::-1])
+                   texture=self.texture,
+                   mask=self.mask[:, ::-1],
+                   center_loc=self.center_loc)
 
     def vflip(self):
         """
@@ -72,7 +88,9 @@ class Sprite(object):
         """
         return Sprite(self.name,
                    self.patch[::-1],
-                   self.mask[::-1])
+                   texture=self.texture,
+                   mask=self.mask[::-1],
+                   center_loc=self.center_loc)
 
     def scale(self, xscale, yscale = None):
         """
@@ -91,7 +109,8 @@ class Sprite(object):
             for j in xrange(xscale):
                 patch[i:prows*yscale:yscale, j:pcols*xscale:xscale] = self.patch
                 mask[i:mrows*yscale:yscale, j:mcols*xscale:xscale] = self.mask
-        return Sprite(self.name, patch, mask)
+
+        return Sprite(self.name, patch, texture=self.texture, mask=mask, center_loc=self.center_loc)
 
     def margin(self, margin):
         """
@@ -106,7 +125,9 @@ class Sprite(object):
                 mask[i:mr-m+1+i, j:mc-m+1+j] |= self.patch
         b = Sprite(self.name,
                 self.patch,
-                mask)
+                texture = self.texture,
+                mask=mask,
+                center_loc=self.center_loc)
         return b
 
     def total_mask(self):
@@ -115,7 +136,9 @@ class Sprite(object):
         """
         return Sprite(self.name,
                    self.patch,
-                   numpy.ones(self.mask.shape))
+                   texture=self.texture,
+                   mask=numpy.ones(self.mask.shape),
+                   center_loc=self.center_loc)
 
     def fit_mask(self):
         """
@@ -123,7 +146,9 @@ class Sprite(object):
         """
         return Sprite(self.name,
                    self.patch,
-                   self.patch)
+                   texture=self.texture,
+                   mask=self.patch,
+                   center_loc=self.center_loc)
 
     def __str__(self):
         return self.name + '\n' + '\n'.join(' '.join('x' if x else ' ' for x in row) for row in self.patch)
