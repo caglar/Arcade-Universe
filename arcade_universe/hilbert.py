@@ -46,6 +46,7 @@ class HilbertCurves(object):
 		if n <= 0:
 			X = x0 + (xi + yi)/2
 			Y = y0 + (xj + yj)/2
+
 			# Merge the dots
 			self.make_line(X, Y)
 			self.edges.append((X, Y))

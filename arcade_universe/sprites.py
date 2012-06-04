@@ -7,7 +7,6 @@ def get_sprites(s):
     mapping = {'.': 0,
                'x': 1}
     for name, block in s.items():
-        print "block" + block
         name = name.strip()
         block = block.strip()
         if not block:
@@ -16,7 +15,6 @@ def get_sprites(s):
         desc = []
         for line in lines[1:]:
             desc.append(map(mapping.get, line))
-        print name
         d[name] = Sprite(name, patch=desc)
     return d
 
@@ -754,8 +752,8 @@ for name, sprite in sorted(sprites_db.iteritems()):
 # xxxxx
 
 
-import pprint as pp
-pp.pprint(sprites_db)
+#import pprint as pp
+#pp.pprint(sprites_db)
 
 #sprites = get_sprites(spritedesc)
 

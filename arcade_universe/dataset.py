@@ -109,6 +109,7 @@ class SpritePlacer(object):
 		gen = iter(self.gen)
 		if self.collision_check:
 			collider = numpy.zeros((self.h, self.w))
+
 		while True:
 			if self.enable_perlin:
 				data = self.perlin_gen.get_background_noise()
@@ -117,7 +118,6 @@ class SpritePlacer(object):
 
 			targets = numpy.zeros((self.nout,), dtype = self.out_dtype)
                         if self.use_patch_centers:
-                            #import pudb; pudb.set_trace()
                             object_presences = numpy.zeros(nelems)
                             object_presences.fill(-1)
 
@@ -202,16 +202,17 @@ class SpritePlacer(object):
                                                         data[ystart: yend, xstart: xend] = sprite.textured_patch
                                                         idx = 0
                                                         for center in self.gen.patch_centers:
-                                                            if numpy.array_equal(center, [x, y]):
+                                                            if numpy.array_equal(center, [y, x]):
                                                                 break
                                                             idx +=1
                                                         object_presences[idx] = self.gen.spritenames.index(sprite.name)
-
                                                     else:
 							data[y: y + sprite.h, x: x + sprite.w] = sprite.textured_patch
+
 						targets[:] = target
 						self.n_successes += 1
 						break
+
                         if self.use_patch_centers:
                             yield data.reshape(self.nin), targets, object_presences
                         else:
