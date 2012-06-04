@@ -22,13 +22,15 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
             np_patch_centers = np.vstack((np_patch_centers, data[2]))
         n_count+=1
 
-#    import pudb; pudb.set_trace()
-
     np_data = np_data[1:]
+    np_data.dtype = np.float32
+
     np_targets = np_targets[1:]
+    np_targets.dtype = np.uint8
 
     if use_patch_centers:
         np_patch_centers = np_patch_centers[1:]
+        np_patch_centers.dtype = np.int8
         np_dataset = np.array([np_data, np_targets, np_patch_centers])
     else:
         np_dataset = np.array([np_data, np_targets])
@@ -42,10 +44,6 @@ if __name__=="__main__":
     tetromino_gen = lambda w, h: TwoGroups("tetrisi/tetriso/tetrist/tetrisl/tetrisj/tetriss/tetrisz",
                                        1010, w, h,
                                        n1 = 1, n2 = 2, rot = True, scale=True, task = 1)
-
-#   tetromino = lambda w, h: SpritePlacer(tetromino_gen(w, h), collision_check=True)
-#   tetromino10x10 = tetromino(10, 10)
-#   tetromino16x16 = tetromino(16, 16)
 
     fg = Foreground(size=(16, 16), texture_type=FGTextureType.PlainBin)
     texture = fg.generate_texture()
@@ -72,6 +70,6 @@ if __name__=="__main__":
 
     print "Started saving pentomino64x64"
     no_of_examples = 300
-    
+
     save_to_file(pentomino64x64_raw, no_of_examples, pentomino64x64,
             use_patch_centers=True, e=64)
