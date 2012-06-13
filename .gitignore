@@ -24,8 +24,11 @@ pip-log.txt
 .coverage
 .tox
 
+*.swp
 #Translations
 *.mo
 
 #Mr Developer
 .mr.developer.cfg
+LOGS/
+TMP_DBI/
