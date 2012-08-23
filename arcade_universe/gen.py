@@ -105,6 +105,11 @@ class TwoGroups(object):
     respectively the id of the shape there are ``n1`` occurrences of
     and the id of the shape there are ``n2`` occurrences of.
 
+    ``task = 4`` -> There are images that don't have any different objects
+    (negative images). The number of negative images is same as the number of
+    positive images. So there can be n2 + n1 identical objects or n1 different
+    and n2 identical objects.
+
     The object's ``nout`` field contains the length of the target
     vector and the object's ``nclasses`` field contains a vector of
     length ``nout`` where each element is the number of possible sprites.
@@ -115,15 +120,27 @@ class TwoGroups(object):
     ``w`` and ``h`` are the width and the height of the scene,
     respectively.
     """
-    def __init__(self, spritenames, seed, w, h, n1 = 1, n2 = 2, rot = False,
-             scale = False, texture=None, use_patch_centers=False, patch_size=(8, 8), task = 1):
+    def __init__(self,
+                spritenames,
+                seed, w,
+                h, n1 = 1,
+                n2 = 2,
+                rot = False,
+                scale = False, texture=None,
+                use_patch_centers=False,
+                center_objects=0,
+                patch_size=(8, 8),
+                task = 1):
 
         if n1 == n2:
             raise ValueError('n1 must be different from n2', n1, n2)
 
         self.use_patch_centers = use_patch_centers
 
+        self.center_objects = center_objects
+
         self.spritenames = map(str.upper, spritenames.split('/'))
+        import pudb; pudb.set_trace()
         sprites = map(sprites_db.__getitem__, self.spritenames)
         if len(sprites) < 2:
             raise ValueError("There must be at least two possible sprites.")
@@ -143,24 +160,29 @@ class TwoGroups(object):
         self.out_format = 'array'
         self.out_dtype = 'uint8'
 
-        if task == 1 or task == 2:
+        if task == 1 or task == 2 or task == 4:
             self.nout = 1
             self.nclasses = [len(self.sprites)]
         elif task == 3:
             self.nout = 2
             self.nclasses = [len(self.sprites)] * 2
         else:
-            raise ValueError("task must be 1, 2 or 3")
+            raise ValueError("task must be either 1, 2, 3 or 4.")
 
-        self.patch_objects = numpy.zeros((w/patch_size[0], h/patch_size[1]))
-        self.patch_objects.fill(-1) # -1 is for No Object - Only background pixels
+        self.patch_objects = numpy.zeros((w / patch_size[0], h / patch_size[1]))
+
+        # Add -1 is for No Object - Only background pixels.
+        self.patch_objects.fill(-1)
 
         #The number of rows and cols for the patches
         self.nrows_patches = h / patch_size[0]
         self.ncols_patches = w / patch_size[1]
 
         if use_patch_centers:
-            self.patch_centers = self.gen_patch_centers(patch_size)
+            if center_objects:
+                self.patch_centers = self.gen_patch_centers(patch_size)
+            else:
+                self.patch_centers = self.gen_object_loc(patch_size)
 
         self.w = w
         self.h = h
@@ -175,44 +197,82 @@ class TwoGroups(object):
                     j * patch_size[1] + first_center[1]))
         return numpy.array(patch_centers)
 
+    def gen_object_loc(self, patch_size=(16, 16)):
+        R = numpy.random.RandomState(self.seed)
+        ri = R.random_integers
+        patch_centers = []
+
+        for i in xrange(self.nrows_patches):
+            for j in xrange(self.ncols_patches):
+                (x_0, x_1) = (i * patch_size[0], (i + 1) * patch_size[0] - 8)
+                (y_0, y_1) = (j * patch_size[1], (j + 1) * patch_size[1] - 8)
+                (x_o, y_o) = (ri(x_0, x_1), ri(y_0, y_1))
+                patch_centers.append((y_o, x_o))
+        return numpy.array(patch_centers)
+
     def __iter__(self):
 
         R = numpy.random.RandomState(self.seed)
         ri = R.random_integers
+
         while True:
+            task4_flag = ri(0, 1)
+            task4_idx = 0
+            task4_lbl = 0
+            descr = []
+            index1 = 0
+            index2 = 0
+            sprites = []
 
-            index1 = ri(0, len(self.sprites)-1)
-            index2 = ri(0, len(self.sprites)-1)
+            if self.task == 4:
+                if task4_flag:
+                    task4_idx = ri(0, len(self.sprites) - 1)
+                    task4_lbl = len(self.sprites)
+                    sprites = [self.sprites[task4_idx]] * (self.n1 + self.n2)
 
-            while index1 == index2:
+                else:
+                    task4_lbl = ri(0, len(self.sprites)-1)
+                    index1 = task4_lbl
+                    index2 = ri(0, len(self.sprites)-1)
+
+                    while index1 == index2:
+                        index2 = ri(0, len(self.sprites)-1)
+
+                    sprites1 = [self.sprites[index1]] * self.n1
+                    sprites2 = [self.sprites[index2]] * self.n2
+                    sprites = sprites1 + sprites2
+
+            else:
+                index1 = ri(0, len(self.sprites)-1)
                 index2 = ri(0, len(self.sprites)-1)
 
-            sprites1 = [self.sprites[index1]] * self.n1
-            sprites2 = [self.sprites[index2]] * self.n2
+                while index1 == index2:
+                    index2 = ri(0, len(self.sprites)-1)
+
+                sprites1 = [self.sprites[index1]] * self.n1
+                sprites2 = [self.sprites[index2]] * self.n2
+
+                sprites = sprites1 + sprites2
 
             if self.rot:
-                sprites1 = [sprite.rotate(ri(0, 3) * 90) for sprite in sprites1]
-                sprites2 = [sprite.rotate(ri(0, 3) * 90) for sprite in sprites2]
+                sprites = [sprite.rotate(ri(0, 3) * 90) for sprite in sprites]
 
             if self.scale:
-                sprites1 = [sprite.scale(ri(1, 2)) for sprite in sprites1]
-                sprites2 = [sprite.scale(ri(1, 2)) for sprite in sprites2]
-
-            descr = []
+                sprites = [sprite.scale(ri(1, 2)) for sprite in sprites]
 
             if self.use_patch_centers:
-                for sprite in sprites1 + sprites2:
+                for sprite in sprites:
                     self.patch_center = self.patch_centers[ri(0, self.patch_centers.shape[0] - 1)]
                     sprite.center_loc = self.patch_center
                     descr.append((self.patch_center, sprite))
             else:
-                for sprite in sprites1 + sprites2:
+                for sprite in sprites:
                     descr.append(((ri(0, self.w - sprite.w), ri(0, self.h - sprite.h)), sprite))
-
             if self.task == 1:
                 yield descr, numpy.array([index1], dtype = self.out_dtype)
             elif self.task == 2:
                 yield descr, numpy.array([index2], dtype = self.out_dtype)
+            elif self.task == 4:
+                yield descr, numpy.array([task4_lbl], dtype = self.out_dtype)
             else:
                 yield descr, numpy.array([index1, index2], dtype = self.out_dtype)
-

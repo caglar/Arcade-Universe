@@ -1,6 +1,8 @@
 import numpy
 import sys
 
+import math
+
 from perlin import PerlinNoiseGenerator
 
 class SpritePlacer(object):
@@ -109,13 +111,11 @@ class SpritePlacer(object):
 		gen = iter(self.gen)
 		if self.collision_check:
 			collider = numpy.zeros((self.h, self.w))
-
 		while True:
 			if self.enable_perlin:
 				data = self.perlin_gen.get_background_noise()
 			else:
 				data = numpy.zeros((self.h, self.w))
-
 			targets = numpy.zeros((self.nout,), dtype = self.out_dtype)
                         if self.use_patch_centers:
                             object_presences = numpy.zeros(nelems)
@@ -129,20 +129,21 @@ class SpritePlacer(object):
 
                                         ystart = y - (sprite.h / 2)
                                         yend = y + (sprite.h / 2)
-                            
+
                                         xstart = x - (sprite.w / 2)
                                         xend = x + (sprite.w / 2)
 
                                         if sprite.h % 2 == 1:
                                             ystart = y - (sprite.h / 2) - 1
                                             yend = y + (sprite.h / 2)
-                            
+
                                         if sprite.w % 2 == 1:
                                             xstart = x - (sprite.w / 2) - 1
                                             xend = x + (sprite.w / 2)
 
                                         data[ystart: yend, xstart: xend] = sprite.textured_patch
                                         idx = 0
+
                                         for center in self.gen.patch_centers:
                                             if numpy.array_equal(center, [x, y]):
                                                 break
@@ -184,25 +185,34 @@ class SpritePlacer(object):
 					else:
 						for (x, y), sprite in description:
                                                     if self.use_patch_centers:
-                                                        #Center the object in the patch
-                                                        ystart = y - (sprite.h / 2)
-                                                        yend = y + (sprite.h / 2)
-                                            
-                                                        xstart = x - (sprite.w / 2)
-                                                        xend = x + (sprite.w / 2)
+                                                        # the x,y is the
+                                                        # upper left corner of
+                                                        # the object.
 
-                                                        if sprite.h % 2 == 1:
-                                                            ystart = y - (sprite.h / 2) - 1
-                                                            yend = y + (sprite.h / 2)
-                                            
-                                                        if sprite.w % 2 == 1:
-                                                            xstart = x - (sprite.w / 2) - 1
-                                                            xend = x + (sprite.w / 2)
+                                                        ystart = y
+                                                        yend = y + (sprite.h)
+
+                                                        xstart = x
+                                                        xend = x + (sprite.w)
+
+                                                        #Center the object in the patch
+                                                        if self.gen.center_objects:
+                                                            ystart = y - \
+                                                            int(math.ceil(sprite.h / 2))
+                                                            yend = y + \
+                                                            int(math.ceil(sprite.h / 2))
+
+                                                            xstart = x - \
+                                                            int(math.ceil(sprite.w / 2))
+                                                            xend = x + \
+                                                            int(math.ceil(sprite.w / 2))
 
                                                         data[ystart: yend, xstart: xend] = sprite.textured_patch
+
                                                         idx = 0
+
                                                         for center in self.gen.patch_centers:
-                                                            if numpy.array_equal(center, [y, x]):
+                                                            if numpy.array_equal(center, [x, y]):
                                                                 break
                                                             idx +=1
                                                         object_presences[idx] = self.gen.spritenames.index(sprite.name)

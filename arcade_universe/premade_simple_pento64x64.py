@@ -47,12 +47,10 @@ if __name__=="__main__":
 
     fg = Foreground(size=(16, 16), texture_type=FGTextureType.PlainBin)
     texture = fg.generate_texture()
-
     # PENTOMINO
     pentomino_gen = lambda w, h: TwoGroups("pentl/pentn/pentp/pentf/penty/pentj/pentn2/pentq/pentf2/penty2",
                                        2020, w, h, use_patch_centers=True,
                                        n1 = 1, n2 = 2, rot = True, texture=texture, scale=True, task = 1)
-
     pentomino = lambda w, h: SpritePlacer(pentomino_gen(w, h), collision_check=True, enable_perlin=False)
 
     pentomino64x64 = pentomino(64, 64)
@@ -60,13 +58,6 @@ if __name__=="__main__":
     pentomino_dir = "/data/lisa/data/pentomino/"
 
     pentomino64x64_raw = pentomino_dir + "pentomino64x64_300_presence.npy"
-
-#    print "Started saving pentomino16x16"
-#    save_to_file(pentomino16x16_raw, 100, pentomino16x16)
-
-
-#    print "Started saving tetromino16x16"
-#    save_to_file(tetromino16x16_raw, 100, tetromino16x16)
 
     print "Started saving pentomino64x64"
     no_of_examples = 300

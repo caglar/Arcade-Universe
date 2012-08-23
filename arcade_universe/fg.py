@@ -10,9 +10,13 @@ class FGTextureType:
 
 class Foreground(object):
 
-    def __init__(self, patch=None, texture=None, size=(0, 0),
+    def __init__(self,
+            patch=None,
+            texture=None,
+            size=(0, 0),
             texture_type=FGTextureType.PlainBin,
             corruptor = None):
+
         self.size = size
         self.texture_type = texture_type
         self.corruptor = corruptor

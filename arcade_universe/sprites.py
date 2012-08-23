@@ -13,12 +13,12 @@ def get_sprites(s):
             continue
         lines = block.split('\n')
         desc = []
-        for line in lines[1:]:
+        for line in lines:
             desc.append(map(mapping.get, line))
         d[name] = Sprite(name, patch=desc)
     return d
 
-spritedesc = { 
+spritedesc = {
 "BLIP":
 """
 .x.
@@ -729,7 +729,7 @@ sprites_db = get_sprites(spritedesc)
 
 __doc__ ="""
 
-``spriteland.sprites`` contains one field, ``sprites_db`` that maps a name to a
+``arcade_universe.sprites`` contains one field, ``sprites_db`` that maps a name to a
 :class:`Sprite <spriteland.sprite.Sprite>` object. The supported sprites, along with
 their names, are as follows (<space> = 0 and x = 1):
 
@@ -752,13 +752,14 @@ for name, sprite in sorted(sprites_db.iteritems()):
 # xxxxx
 
 
-#import pprint as pp
+import pprint as pp
 #pp.pprint(sprites_db)
 
-#sprites = get_sprites(spritedesc)
+sprites = get_sprites(spritedesc)
 
-#b = sprites['TETRISL']
-# print b
+b = sprites['PENTL']
+print b
+
 # print b.rotate(90)
 # print b.rotate(180)
 # print b.rotate(270)

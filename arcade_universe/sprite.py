@@ -11,11 +11,12 @@ class Sprite(object):
     if their masks overlap). The mask defaults to the same thing as
     the patch if it is not given.
     """
-
     def __init__(self, name, patch, texture=None, mask=None, center_loc=(0, 0)):
+
         self.name = name
         self.patch = numpy.array(patch)
         self.textured_patch = patch
+
         if texture is None:
             self.has_textured_patch = False
             self.texture = None
@@ -24,25 +25,31 @@ class Sprite(object):
             self.texture = texture
             self.textured_patch = numpy.zeros(patch.shape)
             self.set_texture()
+
         if mask is None:
             self.mask = self.patch
         else:
             self.mask = numpy.array(mask)
+
         self.center_loc = center_loc
         self.center_of_mass = self.get_center_of_mass()
 
     def set_texture(self, texture=None):
+
         if texture is None:
-            texture = self.texture 
+            texture = self.texture
         else:
             self.texture = texture
+
         for i in xrange(self.patch.shape[0]):
             for j in xrange(self.patch.shape[1]):
                 if self.patch[i][j] == 1:
                     self.textured_patch[i][j] = texture[i][j]
 
     def get_center_of_mass(self):
+
         pixel_coords = []
+
         for i in xrange(self.patch.shape[0]):
             for j in xrange(self.patch.shape[1]):
                 if self.patch[i][j] == 1:
@@ -66,9 +73,8 @@ class Sprite(object):
                        texture=self.texture,
                        mask=self.mask.T,
                        center_loc=self.center_loc).hflip()
-
         if angle >= 180:
-            return self.hflip().vflip().rotate(angle-180)
+            return self.hflip().vflip().rotate(angle - 180)
 
     def hflip(self):
         """
@@ -109,7 +115,6 @@ class Sprite(object):
             for j in xrange(xscale):
                 patch[i:prows*yscale:yscale, j:pcols*xscale:xscale] = self.patch
                 mask[i:mrows*yscale:yscale, j:mcols*xscale:xscale] = self.mask
-
         return Sprite(self.name, patch, texture=self.texture, mask=mask, center_loc=self.center_loc)
 
     def margin(self, margin):
@@ -117,12 +122,13 @@ class Sprite(object):
         Creates a Sprite whose mask is the patch enlarged by margin
         pixels all around.
         """
-        mr, mc = self.patch.shape[0]+margin*2, self.patch.shape[1]+margin*2
+        mr, mc = self.patch.shape[0] + margin * 2, self.patch.shape[1] + margin * 2
         mask = numpy.zeros((mr, mc), dtype = 'int')
-        m = margin*2 + 1
+        m = margin * 2 + 1
         for i in xrange(m):
             for j in xrange(m):
                 mask[i:mr-m+1+i, j:mc-m+1+j] |= self.patch
+
         b = Sprite(self.name,
                 self.patch,
                 texture = self.texture,
@@ -159,5 +165,5 @@ class Sprite(object):
     mh = property(lambda self: self.mask.shape[0], doc = "Property that returns the bug's mask's height.")
     mw = property(lambda self: self.mask.shape[1], doc = "Property that returns the bug's mask's height.")
 
-    marginh = property(lambda self: (self.mh-self.h)/2, doc = "Property that returns the difference between the bug's height and the bug's mask's height.")
-    marginw = property(lambda self: (self.mw-self.w)/2, doc = "Property that returns the difference between the bug's width and the bug's mask's width.")
+    marginh = property(lambda self: (self.mh - self.h) / 2, doc = "Property that returns the difference between the bug's height and the bug's mask's height.")
+    marginw = property(lambda self: (self.mw - self.w) / 2, doc = "Property that returns the difference between the bug's width and the bug's mask's width.")

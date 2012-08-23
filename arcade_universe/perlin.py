@@ -5,7 +5,6 @@ import numpy as np
 
 #This is a perlin noise generating script
 class PerlinNoiseGenerator(object):
-
         """
         The constructor for the PerlinNoiseGenerator,
         w is the width of the Image
@@ -27,7 +26,7 @@ class PerlinNoiseGenerator(object):
 			for y in xrange(self.h):
 				noise[x][y] = (self.rng.random_integers(0, 32768) / 32768)
 		return noise
-        
+
         """
         Smooth the noise at the pixel x and y, by using bilinear interpolation.
         """
@@ -63,9 +62,8 @@ class PerlinNoiseGenerator(object):
 		while(size>=1):
 			val += self.smoothnoise(x/size, y/size, noise) * size
 			size /= 2.0
-		
 		return int(128 * val/init_size)
-	
+
 	def get_background_noise(self):
 		data = np.zeros((self.w, self.h))
 		noise = self.generate_noise()
