@@ -35,7 +35,6 @@ class HilbertCurves(object):
 
 		if xi != yj:
 			raise Exception("must be square.")
-		
 		elif (2**level >= xi):
 			raise Exception("xi should be less then the power of two.")
 

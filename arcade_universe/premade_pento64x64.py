@@ -4,7 +4,6 @@ import numpy as np
 import argparse
 
 from fg import Foreground, FGTextureType
-
 import time
 
 def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=16):
@@ -25,15 +24,17 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
             np_patch_centers = np.vstack((np_patch_centers, data[2]))
         n_count+=1
 
+    print "Saving numpy arrays to the file..."
+
     np_data = np_data[1:]
-    np_data.dtype = np.float32
+    np_data = np.float32(np_data)
 
     np_targets = np_targets[1:]
-    np_targets.dtype = np.uint8
+    np_targets = np.uint8(np_targets)
 
     if use_patch_centers:
         np_patch_centers = np_patch_centers[1:]
-        np_patch_centers.dtype = np.int8
+        np_patch_centers = np.int8(np_patch_centers)
         np_dataset = np.array([np_data, np_targets, np_patch_centers])
     else:
         np_dataset = np.array([np_data, np_targets])
@@ -46,11 +47,12 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="premade script")
 
     parser.add_argument("--seed", action="store", help="seed for the random number generator", type=int)
-    parser.add_argument("--no-of-exs", action="store", help="the number of examples", type=int)
+    parser.add_argument("--no-of-exs", action="store", help="the number of examples", type=int, required=True)
     parser.add_argument("--bg-texture-type", action="store", choices=["perlin",
     "hilbert", "plain"], help="Determine the type of the texture for the background. Default is plain binary.")
     parser.add_argument("--fg-texture-type", action="store",
     choices=["gradient_rad", "gradient_lin", "plain"], help="Determine the type of the texture for the foreground. Default is plain binary.")
+    parser.add_argument("--out-file-name", action="store", help="The output file name.", required=True)
 
     args = parser.parse_args()
 
@@ -58,6 +60,10 @@ if __name__=="__main__":
     no_of_exs = args.no_of_exs
     texture_type = args.fg_texture_type
     bg_texture_type = args.bg_texture_type
+    out_file_name = args.out_file_name
+
+    if out_file_name is None:
+        raise Exception("The output file name can not be empty.")
 
     if seed is None:
         seed = time.time()
@@ -91,11 +97,11 @@ if __name__=="__main__":
 
     pentomino64x64 = pentomino(64, 64)
 
-    pentomino_dir = "/data/lisa/data/pentomino/"
+    pentomino_dir = "/home/gulcehre/dataset/pentomino/pieces/"
 
-    pentomino64x64_raw = pentomino_dir + "pentomino64x64_300_presence.npy"
+    pentomino64x64_file = pentomino_dir + out_file_name + "_seed_" + str(seed) + ".npy"
 
-    print "Started saving pentomino64x64"
+    print "Started generating pentomino64x64"
 
-    save_to_file(pentomino64x64_raw, no_of_exs, pentomino64x64,
+    save_to_file(pentomino64x64_file, no_of_exs, pentomino64x64,
             use_patch_centers=True, e=64)
