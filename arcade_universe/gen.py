@@ -126,7 +126,8 @@ class TwoGroups(object):
                 h, n1 = 1,
                 n2 = 2,
                 rot = False,
-                scale = False, texture=None,
+                scale = False,
+                texture=None,
                 use_patch_centers=False,
                 center_objects=0,
                 patch_size=(8, 8),
@@ -140,7 +141,7 @@ class TwoGroups(object):
         self.center_objects = center_objects
 
         self.spritenames = map(str.upper, spritenames.split('/'))
-        import pudb; pudb.set_trace()
+        #import pudb; pudb.set_trace()
         sprites = map(sprites_db.__getitem__, self.spritenames)
         if len(sprites) < 2:
             raise ValueError("There must be at least two possible sprites.")
@@ -171,6 +172,10 @@ class TwoGroups(object):
 
         self.patch_objects = numpy.zeros((w / patch_size[0], h / patch_size[1]))
 
+        R = numpy.random.RandomState(self.seed)
+        self.random_ints = R.random_integers
+
+
         # Add -1 is for No Object - Only background pixels.
         self.patch_objects.fill(-1)
 
@@ -198,8 +203,7 @@ class TwoGroups(object):
         return numpy.array(patch_centers)
 
     def gen_object_loc(self, patch_size=(16, 16)):
-        R = numpy.random.RandomState(self.seed)
-        ri = R.random_integers
+        ri = self.random_ints
         patch_centers = []
 
         for i in xrange(self.nrows_patches):
@@ -211,9 +215,7 @@ class TwoGroups(object):
         return numpy.array(patch_centers)
 
     def __iter__(self):
-
-        R = numpy.random.RandomState(self.seed)
-        ri = R.random_integers
+        ri = self.random_ints
 
         while True:
             task4_flag = ri(0, 1)

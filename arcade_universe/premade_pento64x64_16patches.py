@@ -1,10 +1,10 @@
 from gen import *
-from pdataset import *
+from dataset import *
 import numpy as np
 import argparse
 
-
 from fg import Foreground, FGTextureType
+
 import time
 
 def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=16):
@@ -18,6 +18,7 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
         np_patch_centers = np.array(np.zeros(16))
 
     n_count = 0
+
     for data in dataset:
         if n_count == n_examples:
             break
@@ -42,8 +43,8 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
     print "Converted %s to a numpy array." % npy_file_name
     np.save(npy_file_name, np_dataset)
 
-if __name__=="__main__":
 
+if __name__=="__main__":
     parser = argparse.ArgumentParser(description="premade script")
 
     parser.add_argument("--seed", action="store", help="seed for the random number generator", type=int)
@@ -80,6 +81,7 @@ if __name__=="__main__":
     bg_texture_type = args.bg_texture_type
     out_file_name = args.out_file_name
     center_objs = args.center_objects
+    patch_size = (8, 8)
 
     if out_file_name is None:
         raise Exception("The output file name can not be empty.")
@@ -93,11 +95,11 @@ if __name__=="__main__":
     if texture_type is None:
         texture_type = "plain"
     if texture_type == "plain":
-        fg = Foreground(size=(16, 16), texture_type=FGTextureType.PlainBin)
+        fg = Foreground(size=patch_size, texture_type=FGTextureType.PlainBin)
     elif texture_type == "gradient_rad":
-        fg = Foreground(size=(16, 16), texture_type=FGTextureType.GradientRadial)
+        fg = Foreground(size=patch_size, texture_type=FGTextureType.GradientRadial)
     elif texture_type == "gradient_lin":
-        fg = Foreground(size=(16, 16), texture_type=FGTextureType.GradientLinear)
+        fg = Foreground(size=patch_size, texture_type=FGTextureType.GradientLinear)
 
     texture = fg.generate_texture()
 
@@ -113,7 +115,7 @@ if __name__=="__main__":
                                        texture=texture,
                                        scale=True,
                                        center_objects=center_objs,
-                                       patch_size=(16, 16),
+                                       patch_size=patch_size,
                                        task=task)
 
     if bg_texture_type == "perlin":
@@ -128,3 +130,4 @@ if __name__=="__main__":
 
     print "Started saving pentomino64x64"
     save_to_file(pentomino64x64_file, no_of_exs, pentomino64x64, use_patch_centers=True, e=64)
+

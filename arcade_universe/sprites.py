@@ -752,13 +752,13 @@ for name, sprite in sorted(sprites_db.iteritems()):
 # xxxxx
 
 
-import pprint as pp
+#import pprint as pp
 #pp.pprint(sprites_db)
 
-sprites = get_sprites(spritedesc)
+#sprites = get_sprites(spritedesc)
 
-b = sprites['PENTL']
-print b
+#b = sprites['PENTY2']
+#print b
 
 # print b.rotate(90)
 # print b.rotate(180)

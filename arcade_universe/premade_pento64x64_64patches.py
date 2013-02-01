@@ -3,8 +3,8 @@ from pdataset import *
 import numpy as np
 import argparse
 
-
 from fg import Foreground, FGTextureType
+
 import time
 
 def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=16):
@@ -15,9 +15,10 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
     np_targets = np.array(np.zeros(1))
 
     if use_patch_centers:
-        np_patch_centers = np.array(np.zeros(16))
+        np_patch_centers = np.array(np.zeros(64))
 
     n_count = 0
+
     for data in dataset:
         if n_count == n_examples:
             break
@@ -41,6 +42,7 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
         np_dataset = np.array([np_data, np_targets])
     print "Converted %s to a numpy array." % npy_file_name
     np.save(npy_file_name, np_dataset)
+
 
 if __name__=="__main__":
 
@@ -80,6 +82,7 @@ if __name__=="__main__":
     bg_texture_type = args.bg_texture_type
     out_file_name = args.out_file_name
     center_objs = args.center_objects
+    patch_size = (8, 8)
 
     if out_file_name is None:
         raise Exception("The output file name can not be empty.")
@@ -93,11 +96,11 @@ if __name__=="__main__":
     if texture_type is None:
         texture_type = "plain"
     if texture_type == "plain":
-        fg = Foreground(size=(16, 16), texture_type=FGTextureType.PlainBin)
+        fg = Foreground(size=patch_size, texture_type=FGTextureType.PlainBin)
     elif texture_type == "gradient_rad":
-        fg = Foreground(size=(16, 16), texture_type=FGTextureType.GradientRadial)
+        fg = Foreground(size=patch_size, texture_type=FGTextureType.GradientRadial)
     elif texture_type == "gradient_lin":
-        fg = Foreground(size=(16, 16), texture_type=FGTextureType.GradientLinear)
+        fg = Foreground(size=patch_size, texture_type=FGTextureType.GradientLinear)
 
     texture = fg.generate_texture()
 
@@ -113,7 +116,7 @@ if __name__=="__main__":
                                        texture=texture,
                                        scale=True,
                                        center_objects=center_objs,
-                                       patch_size=(16, 16),
+                                       patch_size=patch_size,
                                        task=task)
 
     if bg_texture_type == "perlin":
@@ -123,8 +126,9 @@ if __name__=="__main__":
 
     pentomino = lambda w, h: SpritePlacer(pentomino_gen(w, h), collision_check=True, enable_perlin=enable_perlin)
     pentomino64x64 = pentomino(64, 64)
-    pentomino_dir = "/RQusagers/gulcehre/dataset/pentomino/rnd_pieces/"
-    pentomino64x64_file = pentomino_dir + out_file_name + "_seed_" + str(seed) + "_16patches_rnd" + ".npy"
+    pentomino_dir = "/RQexec/gulcehre/datasets/pentomino/pento_64x64_8x8patches/"
+    pentomino64x64_file = pentomino_dir + out_file_name + "_seed_" + str(seed) + "_64patches" + ".npy"
 
     print "Started saving pentomino64x64"
+
     save_to_file(pentomino64x64_file, no_of_exs, pentomino64x64, use_patch_centers=True, e=64)
