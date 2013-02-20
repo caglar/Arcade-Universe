@@ -1,4 +1,4 @@
-from data_generator import PentominoGenerator
+from arcade_universe.data_generator import PentominoGenerator
 
 dt_gen = PentominoGenerator(batch_size=100, upper_bound=1000)
 

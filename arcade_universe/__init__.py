@@ -1,13 +1,11 @@
-
 from premade import *
 from gen import *
-from dataset import *
-from bug import *
-from bugs import *
+from pdataset import *
+from sprite import *
+from sprites import *
 
 import premade
 import gen
 import dataset
-import bug
-import bugs
-
+import sprite
+import sprites
