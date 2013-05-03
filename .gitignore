@@ -16,6 +16,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+*.sh
 
 # Installer logs
 pip-log.txt
@@ -23,6 +24,15 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+
+# Data Files
+*.npy
+*.pkl
+*.npz
+
+# Image files
+*.png
+*.jpg
 
 *.swp
 #Translations
