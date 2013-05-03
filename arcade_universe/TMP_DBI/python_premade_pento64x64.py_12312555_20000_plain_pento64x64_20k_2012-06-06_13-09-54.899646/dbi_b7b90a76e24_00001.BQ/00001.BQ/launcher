@@ -1,0 +1,8 @@
+#!/bin/sh
+
+HOME=$HOME
+export HOME
+
+export  OMP_NUM_THREADS=1 GOTO_NUM_THREADS=1 MKL_NUM_THREADS=1
+cd ../../../../
+(/bin/sh -c 'python premade_pento64x64.py --seed 12312555 --no-of-exs 20000 --bg-texture-type plain --out-file-name pento64x64_20k') >> LOGS/python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646/0.out 2>> LOGS/python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646/0.err

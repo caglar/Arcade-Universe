@@ -1,0 +1,83 @@
+#!/bin/sh
+# $Id: submit_pbs.sh 10810 2006-11-07 16:29:36Z minh $
+STARTTIME=`date +"%F %T"`
+JOBDIR=`basename $PBS_O_WORKDIR`
+
+####### fonction waitforcpu
+
+function waitforcpu {
+  unset CPUFREE
+  while [ -z "$CPUFREE" ]; do
+   for i in $(seq 1 24 ); do
+     FILECHECK=/ltmp/gulcehre/$(hostname -s)-$$-$i.cpu
+     if [ ! -f $FILECHECK ];then
+        CPUFREE=$FILECHECK
+        touch $CPUFREE
+        break
+     fi
+   done # for
+   if [ -z "$CPUFREE" ];then sleep 1;fi
+  done # while
+  echo $CPUFREE
+  }
+
+
+
+if [ ".bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24" != "" ]; then
+	if [ 0 -ne 0 ]; then
+		rm -fr   /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR
+		mkdir -p /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR
+		retries=0
+		while [ ! -d /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR ] && [ $retries -lt 10 ]; do
+			sleep 1;let retries=$retries+1;echo "### Retry mkdir ($retries) ###"
+			mkdir -p /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR
+		done
+	fi
+	
+	printf "startTime=%s\nstartTimeStr=\"%s %s\"\n" `date +"%s %F %T"` > /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR/start
+	retries=0
+	while [ ! -r /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR/start ] && [ $retries -lt 10 ]; do
+		sleep 1;let retries=$retries+1;echo "### Retry start ($retries) ###"
+		printf "startTime=%s\nstartTimeStr=\"%s %s\"\n" `date +"%s %F %T"` > /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR/start
+	done
+fi
+
+retries=0
+cd /home/gulcehre/codes/python/arcade_universe/arcade_universe/arcade_universe/TMP_DBI/python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646/$JOBDIR
+while [ $? -ne 0 ] && [ ! -d /home/gulcehre/codes/python/arcade_universe/arcade_universe/arcade_universe/TMP_DBI/python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646/$JOBDIR ] && [ $retries -lt 10 ]; do
+	sleep 1;let retries=$retries+1;echo "### Retry cd ($retries) ###"
+	cd /home/gulcehre/codes/python/arcade_universe/arcade_universe/arcade_universe/TMP_DBI/python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646/$JOBDIR
+done
+
+for dir in *.BQ
+do
+	symlink=0
+	if [ -L $dir ]; then symlink=1; fi
+	
+	cd $dir
+
+	if [ -r .bqdone ] && [ $symlink -eq 0 ]; then
+		echo "--$dir (Already completed)----------"
+	else
+		JOBCPUID=$(waitforcpu)
+		echo "--$dir (`date +"%F %T"`) on $JOBCPUID-------"  # wait for a free CPU
+		(sh launcher;rm -f $JOBCPUID;if [ $symlink -eq 0 ]; then touch .bqdone; fi)  &  # run in background
+	fi
+	cd ..
+done
+
+wait # wait for background process to end
+
+if [ ".bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24" != "" ]; then
+	printf "stopTime=%s\nstopTimeStr=\"%s %s\"\n" `date +"%s %F %T"` > /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR/stop
+	retries=0
+	while [ ! -r /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR/stop ] && [ $retries -lt 10 ]; do
+		sleep 1;let retries=$retries+1;echo "### Retry stop ($retries) ###"
+		printf "stopTime=%s\nstopTimeStr=\"%s %s\"\n" `date +"%s %F %T"` > /home/gulcehre/.bqtools/bqsubmit/_home_gulcehre_codes_python_arcade_universe_arcade_universe_arcade_universe_TMP_DBI_python_premade_pento64x64.py_12312555_20000_plain_pento64x64_20k_2012-06-06_13-09-54.899646.dbi_b7b90a76e24/$JOBDIR/stop
+	done
+fi
+
+echo ----------------------------------------
+echo "Start running: $STARTTIME"
+echo "Stop  running: `date +"%F %T"`"
+echo ----------------------------------------

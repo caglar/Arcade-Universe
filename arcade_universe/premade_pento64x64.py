@@ -27,6 +27,8 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
             np_patch_centers = np.vstack((np_patch_centers, data[2]))
         n_count+=1
 
+    print "Saving numpy arrays to the file..."
+
     np_data = np_data[1:]
     np_data = np.float32(np_data)
 
