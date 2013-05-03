@@ -21,8 +21,8 @@ def get_patches(mat, patch_size=(4,4)):
                     patches = np.vstack((patches, [patch]))
                 else:
                     patches = np.vstack(([patches], [patch]))
-
     return patches
+
 arr = np.array(xrange(32 * 32)).reshape(32, 32)
 patches = get_patches(arr)
 print patches

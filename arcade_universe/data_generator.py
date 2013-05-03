@@ -3,10 +3,10 @@ from pdataset import *
 import numpy as np
 import argparse
 
-from fg import Foreground, FGTextureType
+from arcade_universe.fg import Foreground, FGTextureType
 import time
 
-class PentominoGenerator:
+class PentominoGenerator(object):
 
     def __init__(self,
         batch_size,
@@ -24,6 +24,8 @@ class PentominoGenerator:
         fg = Foreground(size=patch_size, texture_type=FGTextureType.PlainBin)
         texture = fg.generate_texture()
 
+        self.n_examples = 0
+
         # PENTOMINO
         self.pentomino_gen = lambda w, h: TwoGroups("pentl/pentn/pentp/pentf/penty/pentj/pentn2/pentq/pentf2/penty2",
                                        seed,
@@ -39,30 +41,39 @@ class PentominoGenerator:
                                        patch_size=patch_size,
                                        task=task)
 
-        pentomino = SpritePlacer(self.pentomino_gen(64, 64), collision_check=True, enable_perlin=enable_perlin)
+        pentomino = SpritePlacer(self.pentomino_gen(64, 64),
+            collision_check=True,
+            enable_perlin=enable_perlin)
+
         self.pentomino_data_gen = pentomino
 
     def __iter__(self):
-        return self
+        return self.next()
 
     def next(self):
-        n_examples = 0
-        if n_examples < self.upper_bound:
-            np_data = np.array(np.zeros(self.pix_per_patch**2))
-            #Target variables
-            np_targets = np.array(np.zeros(1))
-            n_count = 0
-
-            for data in self.pentomino_data_gen:
+        #import ipdb; ipdb.set_trace()
+        np_data = np.array(np.zeros(self.pix_per_patch**2))
+        #Target variables
+        np_targets = np.asarray(np.zeros(1), dtype="float32")
+        n_count = 0
+        for data in self.pentomino_data_gen:
+            if self.n_examples < self.upper_bound:
                 np_data = np.vstack((np_data, data[0]))
                 np_targets = np.vstack((np_targets, data[1]))
-
-                if n_count == self.batch_size:
-                    np_data = np_data[1:]
-                    np_targets = np_targets[1:]
+                if n_count < self.batch_size:
+                    if n_count == 0:
+                        np_data = np_data[1:]
+                        np_targets = np_targets[1:]
 
                     batched_data = numpy.array([np_data, np_targets])
+                    n_count +=1
+                    self.n_examples +=1
+                else:
+                    n_count = 0
+                    np_data = np.array(np.zeros(self.pix_per_patch**2))
+                    #Target variables
+                    np_targets = np.asarray(np.zeros(1), dtype="float32")
                     yield batched_data
-                n_count +=1
-        else:
-            raise StopIteration()
+            else:
+                raise StopIteration()
+
