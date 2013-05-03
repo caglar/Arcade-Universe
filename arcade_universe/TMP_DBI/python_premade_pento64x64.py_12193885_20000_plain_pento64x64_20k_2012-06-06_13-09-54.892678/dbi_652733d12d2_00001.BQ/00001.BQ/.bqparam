@@ -1,2 +1,0 @@
-task = python premade_pento64x64.py --seed 12193885 --no-of-exs 20000 --bg-texture-type plain --out-file-name pento64x64_20k
-logfile = LOGS/python_premade_pento64x64.py_12193885_20000_plain_pento64x64_20k_2012-06-06_13-09-54.892678/0
