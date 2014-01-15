@@ -8,6 +8,7 @@ from fg import Foreground, FGTextureType
 import time
 
 def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=16):
+
     #The pentomino images
     np_data = np.array(np.zeros(e**2))
 
@@ -26,7 +27,7 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
         np_targets = np.vstack((np_targets, data[1]))
         if use_patch_centers:
             np_patch_centers = np.vstack((np_patch_centers, data[2]))
-        n_count+=1
+        n_count += 1
 
     np_data = np_data[1:]
     np_data = np.float32(np_data)
@@ -126,7 +127,10 @@ if __name__=="__main__":
 
     pentomino = lambda w, h: SpritePlacer(pentomino_gen(w, h), collision_check=True, enable_perlin=enable_perlin)
     pentomino64x64 = pentomino(64, 64)
-    pentomino_dir = "/RQexec/gulcehre/datasets/pentomino/pento_64x64_8x8patches/"
+    pentomino_dir = None
+
+    assert pentomino_dir is not None, "Please specify the dataset path that you want to say your files to."
+
     pentomino64x64_file = pentomino_dir + out_file_name + "_seed_" + str(seed) + "_64patches" + ".npy"
 
     print "Started saving pentomino64x64"

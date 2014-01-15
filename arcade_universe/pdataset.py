@@ -2,7 +2,7 @@ import numpy
 import sys
 
 import math
-
+import copy
 from perlin import PerlinNoiseGenerator
 
 class SpritePlacer(object):
@@ -105,125 +105,130 @@ class SpritePlacer(object):
 			return float(self.n_rejections) / total
 
 	def __iter__(self):
+            return copy.copy(self)
+
+        def next(self):
                 nrows_patches = self.gen.nrows_patches
                 ncols_patches = self.gen.ncols_patches
                 nelems = nrows_patches * ncols_patches
-		gen = iter(self.gen)
+		gen = self.gen
 		if self.collision_check:
 			collider = numpy.zeros((self.h, self.w))
-		while True:
-			if self.enable_perlin:
-				data = self.perlin_gen.get_background_noise()
-			else:
-				data = numpy.zeros((self.h, self.w))
-			targets = numpy.zeros((self.nout,), dtype = self.out_dtype)
-                        if self.use_patch_centers:
-                            object_presences = numpy.zeros(nelems)
-                            object_presences.fill(-1)
 
-			if not self.collision_check:
+		#while True:
+		if self.enable_perlin:
+			data = self.perlin_gen.get_background_noise()
+		else:
+			data = numpy.zeros((self.h, self.w))
+
+		targets = numpy.zeros((self.nout,), dtype = self.out_dtype)
+
+                if self.use_patch_centers:
+                    object_presences = numpy.zeros(nelems)
+                    object_presences.fill(-1)
+
+		if not self.collision_check:
+			description, target = gen.next()
+			for (x, y), sprite in description:
+                            if self.use_patch_centers:
+                                #Center the object in the patch
+
+                                ystart = y - (sprite.h / 2)
+                                yend = y + (sprite.h / 2)
+
+                                xstart = x - (sprite.w / 2)
+                                xend = x + (sprite.w / 2)
+
+                                if sprite.h % 2 == 1:
+                                    ystart = y - (sprite.h / 2) - 1
+                                    yend = y + (sprite.h / 2)
+
+                                if sprite.w % 2 == 1:
+                                    xstart = x - (sprite.w / 2) - 1
+                                    xend = x + (sprite.w / 2)
+
+                                data[ystart: yend, xstart: xend] = sprite.textured_patch
+                                idx = 0
+
+                                for center in self.gen.patch_centers:
+                                    if numpy.array_equal(center, [x, y]):
+                                        break
+                                    idx +=1
+                                object_presences[idx] = self.gen.spritenames.index(sprite.name)
+                            else:
+				data[y:y + sprite.h, x:x + sprite.w] = sprite.textured_patch
+
+			targets[:] = target
+			self.n_successes += 1
+
+		else:
+			ntrials = 0
+			while True:
+				if self.n_successes == 0 and ntrials and ntrials % 1000 == 0:
+					print >> sys.stderr, "WARNING: Rejected %i candidates, could not yet fit a single scene together. You might want to generate larger images." % ntrials
+				ntrials += 1
 				description, target = gen.next()
+				collider.fill(0)
 				for (x, y), sprite in description:
-                                    if self.use_patch_centers:
-                                        #Center the object in the patch
+					a, b = y - sprite.marginh, y + sprite.h + sprite.marginh
+					c, d = x - sprite.marginw, x + sprite.w + sprite.marginw
 
-                                        ystart = y - (sprite.h / 2)
-                                        yend = y + (sprite.h / 2)
+					if a < 0 or b >= self.h or c < 0 or d >= self.w:
+						ba, bb = (a < 0)*-a, sprite.mh - (b >= self.h) * (b - self.h + 1)
+						bc, bd = (c < 0)*-c, sprite.mw - (d >= self.w) * (d - self.w + 1)
 
-                                        xstart = x - (sprite.w / 2)
-                                        xend = x + (sprite.w / 2)
+						a, b = max(0, a), min(b, self.h - 1)
+						c, d = max(0, c), min(d, self.w - 1)
 
-                                        if sprite.h % 2 == 1:
-                                            ystart = y - (sprite.h / 2) - 1
-                                            yend = y + (sprite.h / 2)
-
-                                        if sprite.w % 2 == 1:
-                                            xstart = x - (sprite.w / 2) - 1
-                                            xend = x + (sprite.w / 2)
-
-                                        data[ystart: yend, xstart: xend] = sprite.textured_patch
-                                        idx = 0
-
-                                        for center in self.gen.patch_centers:
-                                            if numpy.array_equal(center, [x, y]):
-                                                break
-                                            idx +=1
-                                        object_presences[idx] = self.gen.spritenames.index(sprite.name)
-                                    else:
-					data[y:y + sprite.h, x:x + sprite.w] = sprite.textured_patch
-
-				targets[:] = target
-				self.n_successes += 1
-
-			else:
-				ntrials = 0
-				while True:
-					if self.n_successes == 0 and ntrials and ntrials % 1000 == 0:
-						print >> sys.stderr, "WARNING: Rejected %i candidates, could not yet fit a single scene together. You might want to generate larger images." % ntrials
-					ntrials += 1
-					description, target = gen.next()
-					collider.fill(0)
-
-					for (x, y), sprite in description:
-						a, b = y - sprite.marginh, y + sprite.h + sprite.marginh
-						c, d = x - sprite.marginw, x + sprite.w + sprite.marginw
-
-						if a < 0 or b >= self.h or c < 0 or d >= self.w:
-							ba, bb = (a < 0)*-a, sprite.mh - (b >= self.h) * (b - self.h + 1)
-							bc, bd = (c < 0)*-c, sprite.mw - (d >= self.w) * (d - self.w + 1)
-
-							a, b = max(0, a), min(b, self.h - 1)
-							c, d = max(0, c), min(d, self.w - 1)
-
-							collider[a:b, c:d] += sprite.mask[ba:bb, bc:bd]
-						else:
-							collider[a:b, c:d] += sprite.mask
-
-					if numpy.any(collider > 255) or numpy.any(collider == 2) or numpy.any(collider == 3):
-						self.n_rejections += 1
-						continue
+						collider[a:b, c:d] += sprite.mask[ba:bb, bc:bd]
 					else:
-						for (x, y), sprite in description:
-                                                    if self.use_patch_centers:
-                                                        # the x,y is the
-                                                        # upper left corner of
-                                                        # the object.
+						collider[a:b, c:d] += sprite.mask
 
-                                                        ystart = y
-                                                        yend = y + (sprite.h)
+				if numpy.any(collider > 255) or numpy.any(collider == 2) or numpy.any(collider == 3):
+					self.n_rejections += 1
+					continue
+				else:
+					for (x, y), sprite in description:
+                                            if self.use_patch_centers:
+                                                # the x,y is the
+                                                # upper left corner of
+                                                # the object.
 
-                                                        xstart = x
-                                                        xend = x + (sprite.w)
+                                                ystart = y
+                                                yend = y + (sprite.h)
 
-                                                        #Center the object in the patch
-                                                        if self.gen.center_objects:
-                                                            ystart = y - \
-                                                            int(math.ceil(sprite.h / 2))
-                                                            yend = y + \
-                                                            int(math.ceil(sprite.h / 2))
+                                                xstart = x
+                                                xend = x + (sprite.w)
 
-                                                            xstart = x - \
-                                                            int(math.ceil(sprite.w / 2))
-                                                            xend = x + \
-                                                            int(math.ceil(sprite.w / 2))
+                                                #Center the object in the patch
+                                                if self.gen.center_objects:
+                                                    ystart = y - \
+                                                    int(math.ceil(sprite.h / 2))
+                                                    yend = y + \
+                                                    int(math.ceil(sprite.h / 2))
 
-                                                        data[ystart: yend, xstart: xend] = sprite.textured_patch
+                                                    xstart = x - \
+                                                    int(math.ceil(sprite.w / 2))
+                                                    xend = x + \
+                                                    int(math.ceil(sprite.w / 2))
 
-                                                        idx = 0
+                                                data[ystart: yend, xstart: xend] = sprite.textured_patch
 
-                                                        for center in self.gen.patch_centers:
-                                                            if numpy.array_equal(center, [x, y]):
-                                                                break
-                                                            idx +=1
-                                                        object_presences[idx] = self.gen.spritenames.index(sprite.name)
-                                                    else:
-							data[y: y + sprite.h, x: x + sprite.w] = sprite.textured_patch
+                                                idx = 0
 
-						targets[:] = target
-						self.n_successes += 1
-						break
+                                                for center in self.gen.patch_centers:
+                                                    if numpy.array_equal(center, [x, y]):
+                                                        break
+                                                    idx +=1
+                                                object_presences[idx] = self.gen.spritenames.index(sprite.name)
+                                            else:
+						data[y: y + sprite.h, x: x + sprite.w] = sprite.textured_patch
 
-                        if self.use_patch_centers:
-                            yield data.reshape(self.nin), targets, object_presences
-                        else:
-                            yield data.reshape(self.nin), targets
+					targets[:] = target
+					self.n_successes += 1
+					break
+
+                if self.use_patch_centers:
+                    return data.reshape(self.nin), targets, object_presences
+                else:
+                    return data.reshape(self.nin), targets

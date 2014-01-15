@@ -1,6 +1,7 @@
 import numpy
 from sprites import sprites_db
 
+import copy
 
 class Identify(object):
     """
@@ -50,8 +51,8 @@ class Identify(object):
 
     def __iter__(self):
         sprites = self.sprites
-        R = numpy.random.RandomState(self.seed)
-        ri = R.random_integers
+        #R = numpy.random.RandomState(self.seed)
+        ri = self.rng.random_integers
         while True:
             index = ri(0, len(sprites) - 1)
             sprite = sprites[index]
@@ -136,6 +137,11 @@ class TwoGroups(object):
         if n1 == n2:
             raise ValueError('n1 must be different from n2', n1, n2)
 
+        if seed is None:
+            self.rng = numpy.random.RandomState(14951)
+        else:
+            self.rng = numpy.random.RandomState(seed)
+
         self.use_patch_centers = use_patch_centers
 
         self.center_objects = center_objects
@@ -172,8 +178,8 @@ class TwoGroups(object):
 
         self.patch_objects = numpy.zeros((w / patch_size[0], h / patch_size[1]))
 
-        R = numpy.random.RandomState(self.seed)
-        self.random_ints = R.random_integers
+        #R = numpy.random.RandomState(self.seed)
+        #self.random_ints = R.random_integers
 
 
         # Add -1 is for No Object - Only background pixels.
@@ -203,7 +209,7 @@ class TwoGroups(object):
         return numpy.array(patch_centers)
 
     def gen_object_loc(self, patch_size=(16, 16)):
-        ri = self.random_ints
+        ri = self.rng.random_integers
         patch_centers = []
 
         for i in xrange(self.nrows_patches):
@@ -215,37 +221,30 @@ class TwoGroups(object):
         return numpy.array(patch_centers)
 
     def __iter__(self):
-        ri = self.random_ints
+        return copy.copy(self)
 
-        while True:
-            task4_flag = ri(0, 1)
-            task4_idx = 0
-            task4_lbl = 0
-            descr = []
-            index1 = 0
-            index2 = 0
-            sprites = []
+    def next(self):
 
-            if self.task == 4:
-                if task4_flag:
-                    task4_idx = ri(0, len(self.sprites) - 1)
-                    task4_lbl = len(self.sprites)
-                    sprites = [self.sprites[task4_idx]] * (self.n1 + self.n2)
+        ri = self.rng.random_integers
 
-                else:
-                    task4_lbl = ri(0, len(self.sprites)-1)
-                    index1 = task4_lbl
-                    index2 = ri(0, len(self.sprites)-1)
+        #while True:
+        task4_flag = ri(0, 1)
+        task4_idx = 0
+        task4_lbl = 0
+        descr = []
+        index1 = 0
+        index2 = 0
+        sprites = []
 
-                    while index1 == index2:
-                        index2 = ri(0, len(self.sprites)-1)
-
-                    sprites1 = [self.sprites[index1]] * self.n1
-                    sprites2 = [self.sprites[index2]] * self.n2
-                    sprites = sprites1 + sprites2
-
+        if self.task == 4:
+            if task4_flag:
+                task4_idx = ri(0, len(self.sprites) - 1)
+                task4_lbl = len(self.sprites)
+                sprites = [self.sprites[task4_idx]] * (self.n1 + self.n2)
             else:
-                index1 = ri(0, len(self.sprites)-1)
+                print "Generating for the task 4."
+                task4_lbl = ri(0, len(self.sprites)-1)
+                index1 = task4_lbl
                 index2 = ri(0, len(self.sprites)-1)
 
                 while index1 == index2:
@@ -253,28 +252,39 @@ class TwoGroups(object):
 
                 sprites1 = [self.sprites[index1]] * self.n1
                 sprites2 = [self.sprites[index2]] * self.n2
-
                 sprites = sprites1 + sprites2
 
-            if self.rot:
-                sprites = [sprite.rotate(ri(0, 3) * 90) for sprite in sprites]
+        else:
+            index1 = ri(0, len(self.sprites)-1)
+            index2 = ri(0, len(self.sprites)-1)
 
-            if self.scale:
-                sprites = [sprite.scale(ri(1, 2)) for sprite in sprites]
+            while index1 == index2:
+                index2 = ri(0, len(self.sprites)-1)
 
-            if self.use_patch_centers:
-                for sprite in sprites:
-                    self.patch_center = self.patch_centers[ri(0, self.patch_centers.shape[0] - 1)]
-                    sprite.center_loc = self.patch_center
-                    descr.append((self.patch_center, sprite))
-            else:
-                for sprite in sprites:
-                    descr.append(((ri(0, self.w - sprite.w), ri(0, self.h - sprite.h)), sprite))
-            if self.task == 1:
-                yield descr, numpy.array([index1], dtype = self.out_dtype)
-            elif self.task == 2:
-                yield descr, numpy.array([index2], dtype = self.out_dtype)
-            elif self.task == 4:
-                yield descr, numpy.array([task4_lbl], dtype = self.out_dtype)
-            else:
-                yield descr, numpy.array([index1, index2], dtype = self.out_dtype)
+            sprites1 = [self.sprites[index1]] * self.n1
+            sprites2 = [self.sprites[index2]] * self.n2
+
+            sprites = sprites1 + sprites2
+
+        if self.rot:
+            sprites = [sprite.rotate(ri(0, 3) * 90) for sprite in sprites]
+
+        if self.scale:
+            sprites = [sprite.scale(ri(1, 2)) for sprite in sprites]
+
+        if self.use_patch_centers:
+            for sprite in sprites:
+                self.patch_center = self.patch_centers[ri(0, self.patch_centers.shape[0] - 1)]
+                sprite.center_loc = self.patch_center
+                descr.append((self.patch_center, sprite))
+        else:
+            for sprite in sprites:
+                descr.append(((ri(0, self.w - sprite.w), ri(0, self.h - sprite.h)), sprite))
+        if self.task == 1:
+            return descr, numpy.array([index1], dtype = self.out_dtype)
+        elif self.task == 2:
+            return descr, numpy.array([index2], dtype = self.out_dtype)
+        elif self.task == 4:
+            return descr, numpy.array([task4_lbl], dtype = self.out_dtype)
+        else:
+            return descr, numpy.array([index1, index2], dtype = self.out_dtype)

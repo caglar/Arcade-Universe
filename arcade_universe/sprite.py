@@ -24,7 +24,8 @@ class Sprite(object):
             self.has_textured_patch = True
             self.texture = texture
             self.textured_patch = numpy.zeros(patch.shape)
-            self.set_texture()
+            if texture is not None:
+                self.set_texture()
 
         if mask is None:
             self.mask = self.patch
@@ -32,7 +33,8 @@ class Sprite(object):
             self.mask = numpy.array(mask)
 
         self.center_loc = center_loc
-        self.center_of_mass = self.get_center_of_mass()
+        #The following line should be unnecessary:
+        #self.center_of_mass = self.get_center_of_mass()
 
     def set_texture(self, texture=None):
 
@@ -74,6 +76,14 @@ class Sprite(object):
                        mask=self.mask.T,
                        center_loc=self.center_loc).hflip()
         if angle >= 180:
+            times = angle % 90
+            new_patch = numpy.rot90(self.patch, times)
+            new_mask = numpy.rot90(self.mask, times)
+            #return Sprite(self.name,
+            #            patch=new_patch,
+            #            texture=self.texture,
+            #            mask=new_mask,
+            #            center_loc=self.center_loc)
             return self.hflip().vflip().rotate(angle - 180)
 
     def hflip(self):

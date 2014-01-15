@@ -5,6 +5,7 @@ import argparse
 
 from arcade_universe.fg import Foreground, FGTextureType
 import time
+import copy
 
 class PentominoGenerator(object):
 
@@ -13,6 +14,7 @@ class PentominoGenerator(object):
         use_patch_centers=False,
         seed=1321, patch_size=(8, 8),
         enable_perlin=False,
+        center_objects=False,
         task=4,
         upper_bound=10000000):
 
@@ -21,8 +23,8 @@ class PentominoGenerator(object):
         self.upper_bound = upper_bound
         self.pix_per_patch = np.prod(patch_size)
 
-        fg = Foreground(size=patch_size, texture_type=FGTextureType.PlainBin)
-        texture = fg.generate_texture()
+        #fg = Foreground(size=patch_size, texture_type=FGTextureType.PlainBin)
+        #texture = fg.generate_texture()
 
         self.n_examples = 0
 
@@ -31,13 +33,13 @@ class PentominoGenerator(object):
                                        seed,
                                        w,
                                        h,
-                                       use_patch_centers=False,
+                                       use_patch_centers=use_patch_centers,
                                        n1=1,
                                        n2=2,
                                        rot=True,
-                                       texture=texture,
+                                       texture=None,
                                        scale=True,
-                                       center_objects=True,
+                                       center_objects=center_objects,
                                        patch_size=patch_size,
                                        task=task)
 
@@ -48,32 +50,32 @@ class PentominoGenerator(object):
         self.pentomino_data_gen = pentomino
 
     def __iter__(self):
-        return self.next()
+        return copy.copy(self)
 
     def next(self):
         #import ipdb; ipdb.set_trace()
         np_data = np.array(np.zeros(self.pix_per_patch**2))
         #Target variables
-        np_targets = np.asarray(np.zeros(1), dtype="float32")
+        np_targets = np.asarray(np.zeros(1), dtype="int8")
         n_count = 0
         for data in self.pentomino_data_gen:
             if self.n_examples < self.upper_bound:
-                np_data = np.vstack((np_data, data[0]))
-                np_targets = np.vstack((np_targets, data[1]))
                 if n_count < self.batch_size:
+                    np_data = np.vstack((np_data, data[0]))
+                    np_targets = np.vstack((np_targets, data[1]))
                     if n_count == 0:
                         np_data = np_data[1:]
                         np_targets = np_targets[1:]
-
-                    batched_data = numpy.array([np_data, np_targets])
+                    #batched_data = numpy.array([np_data, np_targets])
                     n_count +=1
                     self.n_examples +=1
                 else:
-                    n_count = 0
-                    np_data = np.array(np.zeros(self.pix_per_patch**2))
+                    #n_count = 0
+                    #np_data = np.array(np.zeros(self.pix_per_patch**2))
                     #Target variables
-                    np_targets = np.asarray(np.zeros(1), dtype="float32")
-                    yield batched_data
+                    #np_targets = np.asarray(np.zeros(1), dtype="int8")
+                    batched_data = [np_data, np_targets]
+                    return batched_data
             else:
                 raise StopIteration()
 
