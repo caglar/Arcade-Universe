@@ -2,7 +2,7 @@ from gen import *
 from pdataset import *
 import numpy as np
 import argparse
-
+from tempfile import TemporaryFile
 from fg import Foreground, FGTextureType
 
 import time
@@ -34,15 +34,13 @@ def save_to_file(npy_file_name, n_examples, dataset, use_patch_centers=False, e=
 
     np_targets = np_targets[1:]
     np_targets = np.uint8(np_targets)
-
     if use_patch_centers:
         np_patch_centers = np_patch_centers[1:]
         np_patch_centers = np.int8(np_patch_centers)
-        np_dataset = np.array([np_data, np_targets, np_patch_centers])
+        np.savez(npy_file_name, data=np_data, targets=np_targets, patch_centers=np_patch_centers)
     else:
-        np_dataset = np.array([np_data, np_targets])
+        np.savez(npy_file_name, data=np_data, targets=np_targets)
     print "Converted %s to a numpy array." % npy_file_name
-    np.save(npy_file_name, np_dataset)
 
 
 if __name__=="__main__":
@@ -131,7 +129,7 @@ if __name__=="__main__":
 
     assert pentomino_dir is not None, "Please specify the dataset path that you want to say your files to."
 
-    pentomino64x64_file = pentomino_dir + out_file_name + "_seed_" + str(seed) + "_64patches" + ".npy"
+    pentomino64x64_file = pentomino_dir + out_file_name + "_seed_" + str(seed) + "_64patches" + ".npz"
 
     print "Started saving pentomino64x64"
 

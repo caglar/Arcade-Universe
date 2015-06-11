@@ -10,42 +10,40 @@ import copy
 class PentominoGenerator(object):
 
     def __init__(self,
-        batch_size,
-        use_patch_centers=False,
-        seed=1321, patch_size=(8, 8),
-        enable_perlin=False,
-        center_objects=False,
-        task=4,
-        upper_bound=10000000):
+                 batch_size,
+                 use_patch_centers=False,
+                 seed=1321, patch_size=(8, 8),
+                 enable_perlin=False,
+                 center_objects=False,
+                 task=4,
+                 upper_bound=10000000):
 
         self.batch_size = batch_size
         self.use_patch_centers = use_patch_centers
         self.upper_bound = upper_bound
         self.pix_per_patch = np.prod(patch_size)
 
-        #fg = Foreground(size=patch_size, texture_type=FGTextureType.PlainBin)
-        #texture = fg.generate_texture()
 
         self.n_examples = 0
 
         # PENTOMINO
         self.pentomino_gen = lambda w, h: TwoGroups("pentl/pentn/pentp/pentf/penty/pentj/pentn2/pentq/pentf2/penty2",
-                                       seed,
-                                       w,
-                                       h,
-                                       use_patch_centers=use_patch_centers,
-                                       n1=1,
-                                       n2=2,
-                                       rot=True,
-                                       texture=None,
-                                       scale=True,
-                                       center_objects=center_objects,
-                                       patch_size=patch_size,
-                                       task=task)
+                                           seed,
+                                           w,
+                                           h,
+                                           use_patch_centers=use_patch_centers,
+                                           n1=1,
+                                           n2=2,
+                                           rot=True,
+                                           texture=None,
+                                           scale=True,
+                                           center_objects=center_objects,
+                                           patch_size=patch_size,
+                                           task=task)
 
         pentomino = SpritePlacer(self.pentomino_gen(64, 64),
-            collision_check=True,
-            enable_perlin=enable_perlin)
+                                 collision_check=True,
+                                 enable_perlin=enable_perlin)
 
         self.pentomino_data_gen = pentomino
 
@@ -53,7 +51,6 @@ class PentominoGenerator(object):
         return copy.copy(self)
 
     def next(self):
-        #import ipdb; ipdb.set_trace()
         np_data = np.array(np.zeros(self.pix_per_patch**2))
         #Target variables
         np_targets = np.asarray(np.zeros(1), dtype="int8")
@@ -66,14 +63,10 @@ class PentominoGenerator(object):
                     if n_count == 0:
                         np_data = np_data[1:]
                         np_targets = np_targets[1:]
-                    #batched_data = numpy.array([np_data, np_targets])
                     n_count +=1
                     self.n_examples +=1
                 else:
-                    #n_count = 0
-                    #np_data = np.array(np.zeros(self.pix_per_patch**2))
                     #Target variables
-                    #np_targets = np.asarray(np.zeros(1), dtype="int8")
                     batched_data = [np_data, np_targets]
                     return batched_data
             else:
