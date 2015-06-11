@@ -127,7 +127,7 @@ if __name__=="__main__":
 
     pentomino = lambda w, h: SpritePlacer(pentomino_gen(w, h), collision_check=True, enable_perlin=enable_perlin)
     pentomino64x64 = pentomino(64, 64)
-    pentomino_dir = None
+    pentomino_dir = "./"
 
     assert pentomino_dir is not None, "Please specify the dataset path that you want to say your files to."
 
